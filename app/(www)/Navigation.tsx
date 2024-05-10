@@ -10,7 +10,7 @@ export function Navigation() {
   const { scrollY } = useScroll()
   const [prevPos, setPrevPos] = useState(scrollY.get())
   const [animate, setAnimate] = useState<'hide' | 'show'>()
-  console.log(segments)
+  console.log('segments', segments)
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     if (prevPos < latest && latest > 100) {
@@ -46,7 +46,7 @@ export function Navigation() {
         <div className="flex-1" />
         <ul className="flex gap-8 text-[#7B7B7B] uppercase justify-center items-center -ml-24">
           <li className={cn("hover:text-[#C6B6A8] transition-all", {
-            "text-[#C6B6A8]": segments[0] === "/"
+            "text-[#C6B6A8]": segments.length === 0 
           })}>
             <Link href="/">Home</Link>
           </li>
