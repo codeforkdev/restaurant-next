@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Category } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { revalidatePath } from "next/cache";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from 'zod'
@@ -35,13 +34,14 @@ export function EditCategorySheet({ id, children }: { id: number, children: Reac
   )
 }
 
+
+
+function EditCategoryForm({ category, onSuccess }: { category: any, onSuccess: () => void }) {
 const schema = z.object({
   name: z.string(),
   description: z.string().nullable(),
   image: z.instanceof(FileList).nullable()
 })
-
-function EditCategoryForm({ category, onSuccess }: { category: any, onSuccess: () => void }) {
   const queryClient = useQueryClient()
   const mutation = useMutation({
     mutationFn: (data: { category: Partial<Category>, image?: FormData }) => {

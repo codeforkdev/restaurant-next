@@ -12,7 +12,7 @@ export default async function Page() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 px-4 gap-4 place-items-center">
         {images.map(image => (
-          <div className="border-2 border-transparent hover:border-blue-500 p-1 rounded-lg relative group max-w-[300px] w-full">
+          <div key={image.id} className="border-2 border-transparent hover:border-blue-500 p-1 rounded-lg relative group max-w-[300px] w-full">
             <div className="h-60 relative rounded overflow-clip ">
               <Image src={image.url ?? ""} alt="thing" fill />
             </div>
