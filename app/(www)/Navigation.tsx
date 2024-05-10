@@ -46,9 +46,9 @@ export function Navigation() {
         <div className="flex-1" />
         <ul className="flex gap-8 text-[#7B7B7B] uppercase justify-center items-center -ml-24">
           <li className={cn("hover:text-[#C6B6A8] transition-all", {
-            "text-[#C6B6A8]": segments[0] === "home"
+            "text-[#C6B6A8]": segments[0] === "/"
           })}>
-            <Link href="/home">Home</Link>
+            <Link href="/">Home</Link>
           </li>
           <li className={cn("hover:text-[#C6B6A8] transition-all", {
             "text-[#C6B6A8]": segments[0] === "about"
