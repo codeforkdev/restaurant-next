@@ -8,9 +8,9 @@ import { v2 as cloudinary } from 'cloudinary'
 
 
 cloudinary.config({
-  cloud_name: 'dnqazzwfi',
-  api_key: '491133334178928',
-  api_secret: 'DKsfEOVglvBV4Ael2kNfqpPFpU8',
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
 })
 
 export async function createMenuItem(menuItem: typeof menuItems.$inferInsert) {
