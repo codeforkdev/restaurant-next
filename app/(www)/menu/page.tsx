@@ -1,6 +1,7 @@
 import { db } from "@/db"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const categories = await db.query.menuCategories.findMany({ with: { menuItems: true } })
