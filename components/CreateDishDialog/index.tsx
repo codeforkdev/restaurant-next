@@ -1,17 +1,17 @@
 'use client'
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from "../ui/button";
-import { useEffect, useState } from "react";
-import { createMenuItem } from "@/app/actions";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { CreateCategoryDialog } from "../MenuItemsTable/CreateCategoryDialog";
+import { createDish } from "@/app/actions";
 
 const schema = z.object({
   name: z.string(),
@@ -24,7 +24,7 @@ const schema = z.object({
 
 type Schema = z.infer<typeof schema>
 
-export default function CreateMenuItemDialog({ categories, children }: { categories: { id: number, name: string }[], children: React.ReactNode }) {
+export default function CreateDishDialog({ categories, children }: { categories: { id: number, name: string }[], children: React.ReactNode }) {
   const { register, control, handleSubmit, reset, formState: { errors } } = useForm<Schema>({ resolver: zodResolver(schema) })
   const [open, setOpen] = useState(false)
 
@@ -40,8 +40,7 @@ export default function CreateMenuItemDialog({ categories, children }: { categor
         </DialogHeader>
 
         <form onSubmit={handleSubmit(async (data) => {
-          console.log(data)
-          await createMenuItem(data)
+          await createDish(data)
           reset()
           setOpen(false)
         })} className="flex flex-col gap-4">
@@ -70,14 +69,13 @@ export default function CreateMenuItemDialog({ categories, children }: { categor
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectGroup>
-                        {categories.map(c => (
-                          <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
-                        ))}
-                        <CreateCategoryDialog>
-                          <Button className="w-full">Create category</Button>
-                        </CreateCategoryDialog>
-                      </SelectGroup>
+                      {categories.map(c => (
+                        <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
+                      ))}
+                      <SelectSeparator />
+                      <CreateCategoryDialog>
+                        <Button className="w-full">Create category</Button>
+                      </CreateCategoryDialog>
                     </SelectContent>
                   </Select>
                 )

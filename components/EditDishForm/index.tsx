@@ -10,24 +10,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { deleteMenuItem, getMenuItemById, updateMenuItem } from "@/app/actions"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import * as z from "zod"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { MenuItem } from "@/types/menu-item"
 import { Button } from "../ui/button"
 import { useToast } from "../ui/use-toast"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
+import { Dish } from "@/db/schema"
+import { deleteDish, getDish, updateDish } from "@/app/actions"
 import { useEffect } from "react"
 
 
 
 type Props = {
   id: number
-  close: () => void
+  onSuccess: () => void
   categories: { id: number, name: string }[]
 }
 
@@ -35,7 +34,7 @@ const schema = z.object({
   id: z.number(),
   name: z.string(),
   price: z.coerce.number(),
-  categoryId: z.number().nullable(),
+  categoryId: z.coerce.number().nullable(),
   status: z.string(),
   description: z.string().nullable()
 })
@@ -43,35 +42,51 @@ const schema = z.object({
 type Schema = z.infer<typeof schema>
 
 
-function Form({ menuItem, close, categories }: { menuItem: MenuItem, close: () => void, categories: { id: number, name: string }[] }) {
-  const { toast } = useToast()
+export function EditDishForm({ id, onSuccess, categories }: Props) {
+  const { data: dish, isLoading } = useQuery({ queryKey: ['dish-' + id], queryFn: async () => await getDish(id), })
+
   const {
     register,
     control,
     handleSubmit,
     reset,
-    formState: { errors }
+    formState: { errors, defaultValues }
   } = useForm<Schema>({
     resolver: zodResolver(schema),
-    defaultValues: menuItem
+    defaultValues: dish
   })
+  useEffect(() => {
+    reset(dish)
+  }, [dish])
+
+  const { toast } = useToast()
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number, data: Partial<MenuItem> }) => await updateMenuItem(id, data),
+    mutationFn: async ({ id, data }: { id: number, data: Partial<Dish> }) => await updateDish(id, data),
     onSuccess: (data) => {
       reset(data)
-      queryClient.invalidateQueries({ queryKey: ['menu-item-' + data?.id] })
+      queryClient.invalidateQueries({ queryKey: ['dish-' + data?.id] })
+      onSuccess()
       toast({
-        title: `Updated ${menuItem.name}`,
+        title: `Updated ${dish?.name}`,
       })
     }
   })
 
+  if (isLoading) {
 
-  useEffect(() => {
-    console.log("errors", errors)
-  }, [errors])
+    return <div className="h-full flex items-center justify-center"><div className="border-8 h-32 w-32 border-gray-300 border-t-slate-900 rounded-full animate-spin" /></div>
+  }
+
+  if (!dish) {
+    return <div> Error occured</div>
+  }
+
+  console.log('dish', dish)
+  console.log('categories', categories)
+
+  console.log('default values', defaultValues)
 
   return (
     <form onSubmit={handleSubmit(async (data) => {
@@ -91,25 +106,21 @@ function Form({ menuItem, close, categories }: { menuItem: MenuItem, close: () =
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="category">Category</Label>
-
         <Controller
           name="categoryId"
           control={control}
           render={({ field }) => {
             return (
-              <Select defaultValue={field.value?.toString() ?? ""} onValueChange={(val) => field.onChange(Number(val))}>
+              <Select defaultValue={dish.id.toString()} onValueChange={field.onChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectGroup>
-                    {categories.map(c => (
-                      <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
-                    ))}
-                  </SelectGroup>
+                  {categories.map(c => (
+                    <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-
             )
           }}
         />
@@ -163,10 +174,10 @@ function Form({ menuItem, close, categories }: { menuItem: MenuItem, close: () =
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={async () => {
-                await deleteMenuItem(menuItem.id)
+                await deleteDish(dish.id)
                 close()
                 toast({
-                  title: `Deleted ${menuItem.name}`
+                  title: `Deleted ${dish.name}`
                 })
               }}
               asChild
@@ -178,23 +189,5 @@ function Form({ menuItem, close, categories }: { menuItem: MenuItem, close: () =
       </AlertDialog>
     </form>
   )
-}
 
-export function EditMenuItemForm({ id, close, categories }: Props) {
-
-  const query = useQuery({ queryKey: ['menu-item-' + id], queryFn: () => getMenuItemById(id), })
-
-  if (query.isLoading) {
-    return <div>Loading</div>
-  }
-
-  if (!query.data) {
-    return <div> Error occured</div>
-  }
-
-  const menuItem = query.data
-
-  return (
-    <Form menuItem={menuItem} close={close} categories={categories} />
-  )
 }

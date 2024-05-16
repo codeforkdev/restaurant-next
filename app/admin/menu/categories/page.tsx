@@ -8,7 +8,11 @@ import { menuCategories } from "@/db/schema"
 
 export default async function Page() {
   const categories = await db.query.menuCategories.findMany({
-    orderBy: asc(menuCategories.id)
+    orderBy: asc(menuCategories.id),
+    with: {
+      dishes: true
+    }
+
   })
   return (
     <CategoriesTable data={categories} />

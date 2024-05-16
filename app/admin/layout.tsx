@@ -22,7 +22,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
         <SideNavigation />
       </div>
-      <div className="flex-1">
+      <div className="flex-1 bg-gray-100">
         {children}
       </div>
     </div>

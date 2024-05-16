@@ -1,11 +1,9 @@
 'use server'
 import { db } from "@/db";
-import { Category, menuCategories, menuItems, images } from "@/db/schema";
-import { MenuItem } from "@/types/menu-item";
+import * as schema from "@/db/schema";
 import { asc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { v2 as cloudinary } from 'cloudinary'
-
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -13,32 +11,26 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 })
 
-export async function createMenuItem(menuItem: typeof menuItems.$inferInsert) {
-  console.log(menuItem)
-  await db.insert(menuItems).values(menuItem)
+export async function createDish(dish: schema.NewDish) {
+  await db.insert(schema.dishes).values(dish)
   revalidatePath("/")
 }
 
 
-export async function getMenuItemById(id: number) {
-  const menuItem = await db.query.menuItems.findFirst({
-    where: eq(menuItems.id, id),
+export async function getDish(id: number) {
+  const dish = await db.query.dishes.findFirst({
+    where: eq(schema.dishes.id, id),
     with: {
-      category: {
-        columns: {
-          id: true,
-          name: true
-        }
-      }
+      category: true
     }
   })
-  return menuItem
+  return dish
 }
 
-export async function updateMenuItem(id: number, menuItem: Partial<MenuItem>) {
-  await db.update(menuItems).set(menuItem).where(eq(menuItems.id, id)).returning()
-  const item = await db.query.menuItems.findFirst({
-    where: eq(menuItems.id, id),
+export async function updateDish(id: number, dish: Partial<schema.Dish>) {
+  await db.update(schema.dishes).set(dish).where(eq(schema.dishes.id, id)).returning()
+  const item = await db.query.dishes.findFirst({
+    where: eq(schema.dishes.id, id),
     with: {
       category: {
         columns: {
@@ -53,15 +45,15 @@ export async function updateMenuItem(id: number, menuItem: Partial<MenuItem>) {
   return item
 }
 
-export async function deleteMenuItem(id: number) {
-  await db.delete(menuItems).where(eq(menuItems.id, id))
+export async function deleteDish(id: number) {
+  await db.delete(schema.dishes).where(eq(schema.dishes.id, id))
   revalidatePath("/")
 }
 
 
 export async function createCategory(name: string) {
   try {
-    await db.insert(menuCategories).values({ name })
+    await db.insert(schema.menuCategories).values({ name })
     revalidatePath("/")
     return { ok: true }
   } catch (e: any) {
@@ -71,14 +63,14 @@ export async function createCategory(name: string) {
 
 export async function getCategoryWithDishes(id: number) {
   return await db.query.menuCategories.findFirst({
-    where: eq(menuCategories.id, id),
+    where: eq(schema.menuCategories.id, id),
     with: {
-      menuItems: true
+      dishes: true
     }
   })
 }
 
-export async function updateCategory(id: number, category: Partial<Category>, image?: FormData) {
+export async function updateCategory(id: number, category: Partial<schema.Category>, image?: FormData) {
 
   if (image) {
     const file = image.get('file') as File
@@ -96,18 +88,21 @@ export async function updateCategory(id: number, category: Partial<Category>, im
     }).then(async (data: any) => {
       console.log(data)
       if (!data?.secure_url) return
-      await db.update(menuCategories).set({ ...category, image: data.secure_url }).where(eq(menuCategories.id, id))
+      await db.update(schema.menuCategories).set({ ...category, image: data.secure_url }).where(eq(schema.menuCategories.id, id))
 
     })
   } else {
-    await db.update(menuCategories).set(category).where(eq(menuCategories.id, id))
+    await db.update(schema.menuCategories).set(category).where(eq(schema.menuCategories.id, id))
   }
 }
 
 
 export async function listCategories() {
   const categories = await db.query.menuCategories.findMany({
-    orderBy: asc(menuCategories.id)
+    orderBy: asc(schema.menuCategories.id),
+    with: {
+      dishes: true
+    }
   })
   return categories
 }
@@ -130,8 +125,12 @@ export async function uploadImage(image: FormData) {
   }).then(async (data: any) => {
     console.log(data)
     if (!data?.secure_url) return
-    await db.insert(images).values({ url: data.secure_url })
+    await db.insert(schema.images).values({ url: data.secure_url })
     revalidatePath("/")
   })
-
 }
+
+
+
+
+

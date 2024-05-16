@@ -7,7 +7,7 @@ import * as z from 'zod'
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "../ui/label";
 import { createCategory } from "@/app/actions";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 
 const schema = z.object({

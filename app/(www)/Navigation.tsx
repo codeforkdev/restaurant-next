@@ -37,7 +37,7 @@ export function Navigation() {
       }}
 
 
-      className="border-b sticky top-0 bg-white z-20 border-b-[#C6B6A8]/50">
+      className="border-b sticky top-0 bg-white z-20 border-b-[#C6B6A8]/50 ">
       <nav className="flex max-w-7xl mx-auto py-6 ">
         <motion.div className={cn("relative h-20 w-24")}>
           <Image src={'https://demartinolatin.com/wp-content/uploads/2019/04/Logo_Web_Final_Footer.png'} alt="logo" fill />

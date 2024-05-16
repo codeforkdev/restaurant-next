@@ -1,10 +1,9 @@
 'use client'
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet";
-import { Button } from "../ui/button";
-import { EditMenuItemForm } from "../EditMenuItemForm";
+import { EditDishForm } from "../EditDishForm";
 
-export function EditDishSheet({ dishId,  name, categories, children}:{dishId: number, categories: any[], name: string, children: React.ReactNode}) {
+export function EditDishSheet({ dishId, categories, children }: { dishId: number, categories: any[], name: string, children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -14,7 +13,7 @@ export function EditDishSheet({ dishId,  name, categories, children}:{dishId: nu
           <SheetTitle>Edit Menu Item</SheetTitle>
         </SheetHeader>
         <div className="flex-1">
-          <EditMenuItemForm id={dishId} close={() => setOpen(false)} categories={categories} />
+          <EditDishForm id={dishId} onSuccess={() => setOpen(false)} categories={categories} />
         </div>
       </SheetContent>
     </Sheet>

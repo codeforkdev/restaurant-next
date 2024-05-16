@@ -1,16 +1,15 @@
 'use client'
 import { DataTable } from "@/components/DataTable"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { ColumnDef, ColumnFiltersState, getCoreRowModel, getFilteredRowModel, useReactTable } from "@tanstack/react-table"
-import { ChangeEvent, useState } from "react"
+import { useState } from "react"
 import { EditCategorySheet } from "./EditCategorySheet"
 import { useQuery } from "@tanstack/react-query"
 import { listCategories } from "@/app/actions"
+import { Dish } from '@/db/schema'
 
 interface DataTableProps {
-  data: { id: number, name: string }[]
+  data: { id: number, name: string, dishes: Dish[] }[]
 }
 
 
@@ -25,7 +24,7 @@ export function CategoriesTable({ data }: DataTableProps) {
   })
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
-  const columns: ColumnDef<{ id: number, name: string }>[] = [
+  const columns: ColumnDef<{ id: number, name: string, dishes: Dish[] }>[] = [
     {
       accessorKey: "id",
       header: "ID"
@@ -43,6 +42,17 @@ export function CategoriesTable({ data }: DataTableProps) {
         )
       }
     },
+    {
+      accessorKey: "dishes",
+      header: "Dishes",
+      cell: ({ row }) => {
+        const dishes = row.getValue("dishes") as Dish[]
+        return (
+          <div>{dishes.length}</div>
+        )
+      }
+    },
+
   ]
 
   const table = useReactTable({
